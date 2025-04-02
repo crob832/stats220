@@ -1,0 +1,70 @@
+---
+title: My dynamic report
+output: html_fragment
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE, error=FALSE)
+
+```
+
+
+```{css}
+body {
+  font-family: Arial, sans-serif;
+  padding: 20px;
+}
+h2 {
+  color: #2a5d84;
+}
+```
+
+
+## Observations from My Bus Commute
+
+```{r load_data, include=FALSE}
+library(tidyverse)
+logged_data <- read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vStO3BGdNiwAcfIGBo7jvq-kprbJKZz7Z6xcwIlIi4HBxqDmFNXWx8ovfwpu0KBhnazYogpob13nh0_/pub?output=csv")
+latest_data <- logged_data %>%
+  rename(
+    timestamp = `Timestamp`,
+    passengers = `How many passengers were on the bus (approx.)?`,
+    driver_mood = `How would you describe the driver's mood?`,
+    time_of_day = `What time of day was your bus ride?`
+  )
+```
+
+
+```{r summary_values, echo=FALSE}
+mean_passengers <- mean(latest_data$passengers, na.rm = TRUE)
+max_passengers <- max(latest_data$passengers, na.rm = TRUE)
+```
+
+
+The average number of passengers per bus ride was **`r round(mean_passengers, 1)`**, and the maximum recorded on a single ride was **`r max_passengers`**.
+
+
+
+
+```{r mood_chart, echo=FALSE}
+ggplot(latest_data, aes(x = driver_mood)) +
+  geom_bar() +
+  labs(title = "Driver Mood Distribution", x = "Driver Mood", y = "Frequency")
+```
+
+
+The bar chart above shows how frequently different driver moods were observed.
+
+
+
+
+```{r time_chart, echo=FALSE}
+ggplot(latest_data, aes(x = time_of_day)) +
+  geom_bar() +
+  labs(title = "Bus Rides by Time of Day", x = "Time of Day", y = "Number of Rides")
+```
+
+
+Most bus rides occurred in the `r latest_data %>% count(time_of_day) %>% arrange(desc(n)) %>% slice(1) %>% pull(time_of_day)` period.
+
+
